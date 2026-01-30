@@ -1,22 +1,20 @@
 # HOOLIGANS Loot - Command Reference
 
-Complete reference for all slash commands available in the HooligansLoot addon.
+Complete reference for all slash commands available in the HooligansLoot addon (v2.0.0).
 
 ## Quick Reference
 
-| Command | Description | Permission |
-|---------|-------------|------------|
-| `/hl` | Open main window | All |
-| `/hl start` | Start new session | ML only |
-| `/hl settings` | Open settings panel | ML only |
-| `/hl history` | View loot history | ML only |
-| `/hl export` | Export current session | All |
-| `/hl import` | Import awards | All |
-| `/hl announce` | Announce awards to chat | ML only |
-| `/hl trade` | Show pending trades | ML only |
-| `/hl vote` | Open vote (context-aware) | All |
-| `/hl pm` | PackMule settings | ML only |
-| `/hl help` | Show command list | All |
+| Command | Description |
+|---------|-------------|
+| `/hl` | Open main window |
+| `/hl start` | Start new session |
+| `/hl export` | Export session to JSON |
+| `/hl import` | Import awards |
+| `/hl announce` | Announce awards to chat |
+| `/hl trade` | Show pending trades |
+| `/hl history` | View loot history |
+| `/hl settings` | Open settings panel |
+| `/hl help` | Show command list |
 
 ## General Commands
 
@@ -38,7 +36,7 @@ Creates a new loot session. If no name is provided, auto-generates one using the
 
 **Examples:**
 ```
-/hl session new                    # Auto-name: "Karazhan - 2025-01-15 20:30"
+/hl session new                    # Auto-name: "Karazhan - 2025-01-30 20:30"
 /hl session new Tuesday Kara Run   # Custom name
 ```
 
@@ -51,8 +49,8 @@ Lists all sessions with their names, item counts, and award status.
 **Output example:**
 ```
 Sessions:
-  Karazhan - 2025-01-15 20:30 [ACTIVE] - 12 items (8/10 awarded)
-  Gruul's Lair - 2025-01-14 - 5 items (5/5 awarded)
+  Karazhan - 2025-01-30 20:30 [ACTIVE] - 12 items (8/10 awarded)
+  Gruul's Lair - 2025-01-29 - 5 items (5/5 awarded)
 ```
 
 ---
@@ -60,16 +58,18 @@ Sessions:
 ## Data Management
 
 ### `/hl export`
-Opens the export dialog to save session data in JSON or CSV format. Useful for:
-- Backing up loot data
-- Sharing with external tools
-- Platform integration
+Opens the export dialog to save session data in JSON format for the HOOLIGANS website.
+
+The exported JSON includes:
+- Session ID and name
+- All tracked items with GUIDs
+- Item details (name, ID, boss, quality, ilvl)
+- Any existing awards
 
 ### `/hl import`
-Opens the import dialog to load award decisions from external sources. Supports:
-- JSON format (HooligansLoot native)
-- CSV format (spreadsheet exports)
-- RCLootCouncil compatible format
+Opens the import dialog to load award decisions from the HOOLIGANS website after voting.
+
+Supports JSON format with item GUID to winner mappings.
 
 ### `/hl announce`
 Announces all pending awards to the configured chat channel (RAID, RAID_WARNING, etc.).
@@ -90,62 +90,13 @@ Pending trades:
 
 ### `/hl settings` or `/hl options`
 Opens the settings panel to configure:
-- Loot tracking options
-- Voting preferences
+- Loot tracking options (minimum quality)
 - Announcement channels
 - Trade automation
 - Debug settings
 
 ### `/hl history`
 Opens the history frame to view awarded items across all sessions.
-
----
-
-## Voting Commands
-
-### `/hl vote` or `/hl vote setup`
-Opens the vote setup dialog where you can:
-- Select items to put up for vote
-- Configure vote timeout
-- Start the voting process
-
-**Requirements:** Must have raid assist or be raid leader
-
-### `/hl vote council`
-Opens the council voting frame where officers can:
-- View raider responses
-- Cast votes for candidates
-- Award items to winners
-
-**Requirements:** Must be a council member (raid assist or in council list)
-
-### `/hl vote respond`
-Opens the raider response frame to submit your preference for items in an active vote.
-
-**Note:** You can also use the "Open Vote" button in the main window to reopen the vote popup if you accidentally closed it.
-
----
-
-## PackMule Commands (ML Only)
-
-PackMule handles automatic loot distribution during raids.
-
-### `/hl pm` or `/hl packmule`
-Opens the PackMule settings frame where you can configure:
-- Auto-loot rules by item quality
-- Disenchanter assignment
-- Item type filters
-
-### `/hl sd <player>` or `/hl setdisenchanter <player>`
-Sets the designated disenchanter for auto-looting.
-
-**Example:**
-```
-/hl sd Enchantername    # Set Enchantername as disenchanter
-```
-
-### `/hl cd` or `/hl cleardisenchanter`
-Clears the current disenchanter assignment.
 
 ---
 
@@ -170,17 +121,11 @@ Toggles debug mode on/off. When enabled, detailed logging appears in chat for tr
 Prints detailed information about the current session:
 - Session ID and name
 - Item count
-- Vote state
-- First few items
+- Award count
+- First few items with award status
 
-### `/hl debug votes`
-Prints detailed information about active votes:
-- Vote IDs and status
-- Response counts
-- Player responses
-
-### `/hl debug clear`
-Clears all active votes. Use with caution - this removes vote data from memory.
+### `/hl debug scan`
+Manually triggers a bag scan to find tradeable items.
 
 ---
 
@@ -195,50 +140,42 @@ All commands can also be accessed via `/hooligans` instead of `/hl`:
 
 ---
 
-## Command Permissions
+## Typical Raid Workflow
 
-### Master Looter / Raid Leader Commands
+1. **Start of Raid**
+   ```
+   /hl start
+   ```
+   Creates session, opens main window.
 
-| Command | Description |
-|---------|-------------|
-| `/hl start` | Create new session |
-| `/hl settings` | Open settings panel |
-| `/hl history` | View loot history |
-| `/hl vote` | Open vote setup |
-| `/hl vote setup` | Open vote setup |
-| `/hl vote council` | Open council voting frame |
-| `/hl test kara` | Add test items (for testing) |
-| `/hl test item` | Add single test item |
-| `/hl pm` | PackMule auto-loot settings |
-| `/hl sd <player>` | Set disenchanter |
-| `/hl cd` | Clear disenchanter |
-| `/hl debug *` | All debug commands |
+2. **During Raid**
+   - Items tracked automatically when looted
+   - Main window shows all drops with trade timers
 
-### Raider Commands
+3. **After Bosses / End of Raid**
+   ```
+   /hl export
+   ```
+   Copy JSON, paste into HOOLIGANS website for voting.
 
-| Command | Description |
-|---------|-------------|
-| `/hl` | Open main window (minimal interface) |
-| `/hl vote` | Open vote response popup |
-| `/hl vote respond` | Open vote response popup |
-| `/hl export` | Export session data |
-| `/hl import` | Import awards |
-| `/hl help` | Show command list |
+4. **After Voting on Website**
+   ```
+   /hl import
+   ```
+   Paste award results from website.
 
-### UI Differences
+5. **Distribute Loot**
+   - Trade items to winners (auto-trade prompts when opening trade)
+   - Or right-click items to see award info
+   ```
+   /hl announce
+   ```
+   Announce winners to raid chat.
 
-**Master Looter sees:**
-- Full button bar (New, Rename, Export, Import, Start Vote, Test Kara, etc.)
-- Auto-Loot, History, Settings buttons in header
-- TIMER column showing trade window expiration
-- RESPONSES column showing raider preferences
-- Remove button on items (hover)
-
-**Raiders see:**
-- Clean minimal interface
-- Only Refresh and Open Vote buttons (centered)
-- AWARDED TO column only
-- No admin controls or test buttons
+6. **End Session**
+   ```
+   /hl session end
+   ```
 
 ---
 
@@ -246,8 +183,10 @@ All commands can also be accessed via `/hooligans` instead of `/hl`:
 
 1. **Quick Start**: Use `/hl start` at the beginning of a raid to create a session and open the UI in one command.
 
-2. **During Raid**: Leave the main window open to see items as they drop. Use `/hl vote` to initiate voting.
+2. **Keep Window Open**: Leave the main window open during raid to see items as they drop.
 
-3. **After Raid**: Use `/hl export` to save data, then `/hl import` after LC decisions are made externally.
+3. **Export Early**: You can export multiple times - export after each boss if needed.
 
-4. **Troubleshooting**: Enable debug mode with `/hl debug` to see detailed logging, then use `/hl debug session` or `/hl debug votes` for specific information.
+4. **Check Timers**: Watch the trade timer column - items become non-tradeable after 2 hours.
+
+5. **Troubleshooting**: Enable debug mode with `/hl debug` to see detailed logging.
