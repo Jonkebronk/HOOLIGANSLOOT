@@ -281,6 +281,15 @@ function MainFrame:CreateFrame()
     end)
     frame.refreshBtn = refreshBtn
 
+    local gearExportBtn = CreateFrame("Button", nil, buttonBar, "UIPanelButtonTemplate")
+    gearExportBtn:SetSize(50, btnHeight)
+    gearExportBtn:SetPoint("LEFT", refreshBtn, "RIGHT", btnSpacing, 0)
+    gearExportBtn:SetText("Gear")
+    gearExportBtn:SetScript("OnClick", function()
+        HooligansLoot:ShowGearExportDialog()
+    end)
+    frame.gearExportBtn = gearExportBtn
+
     -- Right side buttons
     local endSessionBtn = CreateFrame("Button", nil, buttonBar, "UIPanelButtonTemplate")
     endSessionBtn:SetSize(50, btnHeight)
@@ -886,6 +895,43 @@ function MainFrame:ShowAddItemDialog()
             end
         end)
         dialog.linkEditBox = linkEditBox
+
+        -- Hook for shift-click
+        local originalHandleModifiedItemClick = HandleModifiedItemClick
+        HandleModifiedItemClick = function(link, ...)
+            if linkEditBox:IsVisible() and linkEditBox:HasFocus() and link then
+                linkEditBox:SetText(link)
+                return true
+            end
+            return originalHandleModifiedItemClick(link, ...)
+        end
+
+        local originalChatEdit_InsertLink = ChatEdit_InsertLink
+        ChatEdit_InsertLink = function(link)
+            if linkEditBox:IsVisible() and linkEditBox:HasFocus() and link then
+                linkEditBox:SetText(link)
+                return true
+            end
+            return originalChatEdit_InsertLink(link)
+        end
+
+        -- Drag and drop support
+        linkEditBox:SetScript("OnReceiveDrag", function(self)
+            local infoType, itemID, itemLink = GetCursorInfo()
+            if infoType == "item" and itemLink then
+                self:SetText(itemLink)
+                ClearCursor()
+            end
+        end)
+        linkEditBox:SetScript("OnMouseDown", function(self, button)
+            if button == "LeftButton" then
+                local infoType, itemID, itemLink = GetCursorInfo()
+                if infoType == "item" and itemLink then
+                    self:SetText(itemLink)
+                    ClearCursor()
+                end
+            end
+        end)
 
         local instructions = dialog:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         instructions:SetPoint("TOP", linkEditBox, "BOTTOM", 0, -5)

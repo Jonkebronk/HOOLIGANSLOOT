@@ -126,6 +126,8 @@ function HooligansLoot:SlashCommand(input)
         self:ShowExportDialog()
     elseif cmd == "import" then
         self:ShowImportDialog()
+    elseif cmd == "gear" then
+        self:ShowGearExportDialog()
     elseif cmd == "announce" then
         self:AnnounceAwards()
     elseif cmd == "trade" then
@@ -195,6 +197,7 @@ function HooligansLoot:PrintHelp()
     print("  |cff88ccff/hl session list|r - List all sessions")
     print("  |cff88ccff/hl export|r - Export current session")
     print("  |cff88ccff/hl import|r - Import awards data")
+    print("  |cff88ccff/hl gear|r - Export equipped gear (WowSims format)")
     print("  |cff88ccff/hl announce|r - Announce awards")
     print("  |cff88ccff/hl trade|r - Show pending trades")
     print("  |cffffcc00-- Testing --|r")
@@ -244,15 +247,12 @@ function HooligansLoot:DebugSession()
     print("  Session name: " .. tostring(session.name))
     print("  Session status: " .. tostring(session.status))
     print("  Items count: " .. tostring(#session.items))
-    print("  Awards count: " .. tostring(NS.Utils.TableSize(session.awards or {})))
 
     if #session.items > 0 then
         print("  First 3 items:")
         for i = 1, math.min(3, #session.items) do
             local item = session.items[i]
-            local award = session.awards and session.awards[item.guid]
-            local awardInfo = award and (" -> " .. award.winner) or ""
-            print("    " .. i .. ": " .. tostring(item.name) .. awardInfo)
+            print("    " .. i .. ": " .. tostring(item.name) .. " (guid: " .. tostring(item.guid) .. ")")
         end
     end
 
@@ -280,6 +280,13 @@ function HooligansLoot:ShowImportDialog()
     local Import = self:GetModule("Import", true)
     if Import then
         Import:ShowDialog()
+    end
+end
+
+function HooligansLoot:ShowGearExportDialog()
+    local GearExport = self:GetModule("GearExport", true)
+    if GearExport then
+        GearExport:ShowDialog()
     end
 end
 
