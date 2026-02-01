@@ -7,25 +7,25 @@ local Utils = NS.Utils
 
 local GearExport = HooligansLoot:NewModule("GearExport")
 
--- Equipment slot mapping (slotId -> WowSims name)
-local SLOT_IDS = {
-    { slot = 1,  name = "Head" },
-    { slot = 2,  name = "Neck" },
-    { slot = 3,  name = "Shoulder" },
-    { slot = 5,  name = "Chest" },
-    { slot = 6,  name = "Waist" },
-    { slot = 7,  name = "Legs" },
-    { slot = 8,  name = "Feet" },
-    { slot = 9,  name = "Wrist" },
-    { slot = 10, name = "Hands" },
-    { slot = 15, name = "Back" },
-    { slot = 11, name = "Finger1" },
-    { slot = 12, name = "Finger2" },
-    { slot = 13, name = "Trinket1" },
-    { slot = 14, name = "Trinket2" },
-    { slot = 16, name = "MainHand" },
-    { slot = 17, name = "OffHand" },
-    { slot = 18, name = "Ranged" },
+-- Equipment slots: WoW slot ID -> slot name (capitalized for platform)
+local SLOT_INFO = {
+    { wowSlot = 1,  name = "Head" },
+    { wowSlot = 2,  name = "Neck" },
+    { wowSlot = 3,  name = "Shoulder" },
+    { wowSlot = 15, name = "Back" },
+    { wowSlot = 5,  name = "Chest" },
+    { wowSlot = 9,  name = "Wrist" },
+    { wowSlot = 10, name = "Hands" },
+    { wowSlot = 6,  name = "Waist" },
+    { wowSlot = 7,  name = "Legs" },
+    { wowSlot = 8,  name = "Feet" },
+    { wowSlot = 11, name = "Finger1" },
+    { wowSlot = 12, name = "Finger2" },
+    { wowSlot = 13, name = "Trinket1" },
+    { wowSlot = 14, name = "Trinket2" },
+    { wowSlot = 16, name = "MainHand" },
+    { wowSlot = 17, name = "OffHand" },
+    { wowSlot = 18, name = "Ranged" },
 }
 
 -- Class name mapping (localized -> lowercase English)
@@ -60,43 +60,28 @@ function GearExport:OnEnable()
     -- Nothing to do on enable
 end
 
--- Get enchant ID from item link
-function GearExport:GetEnchantID(itemLink)
-    if not itemLink then return nil end
-    -- Item link format: |cff...|Hitem:itemID:enchantID:...|h[Name]|h|r
-    local enchantID = select(2, strsplit(":", itemLink:match("item:([^|]+)")))
-    enchantID = tonumber(enchantID)
-    return (enchantID and enchantID > 0) and enchantID or nil
-end
-
--- Get all equipped gear
+-- Get all equipped gear: slot name -> item ID directly
 function GearExport:GetEquippedGear()
     local gear = {}
+    local itemCount = 0
 
-    for _, slotInfo in ipairs(SLOT_IDS) do
-        local itemLink = GetInventoryItemLink("player", slotInfo.slot)
+    for _, slotInfo in ipairs(SLOT_INFO) do
+        local itemLink = GetInventoryItemLink("player", slotInfo.wowSlot)
+
         if itemLink then
             local itemID = Utils.GetItemID(itemLink)
-            local enchantID = self:GetEnchantID(itemLink)
-
             if itemID then
-                local gearPiece = {
-                    id = itemID,
-                    slot = slotInfo.name,
-                }
-                if enchantID then
-                    gearPiece.enchant = enchantID
-                end
-                table.insert(gear, gearPiece)
+                gear[slotInfo.name] = itemID  -- Direct: "Head" = 22478
+                itemCount = itemCount + 1
             end
         end
     end
 
-    return gear
+    return gear, itemCount
 end
 
--- Export gear in WowSims JSON format
-function GearExport:ExportToWowSims()
+-- Export gear in simple JSON format (flat structure)
+function GearExport:ExportToJSON()
     local playerName = UnitName("player")
     local realmName = GetRealmName()
     local _, classFile = UnitClass("player")
@@ -104,27 +89,22 @@ function GearExport:ExportToWowSims()
 
     local className = CLASS_MAP[classFile] or classFile:lower()
 
-    local gear = self:GetEquippedGear()
+    local gear, itemCount = self:GetEquippedGear()
 
-    -- Build gear array for WowSims format (just id and enchant)
-    local gearArray = {}
-    for _, piece in ipairs(gear) do
-        local gearEntry = { id = piece.id }
-        if piece.enchant then
-            gearEntry.enchant = piece.enchant
-        end
-        table.insert(gearArray, gearEntry)
-    end
-
+    -- Build flat export with player info + slots at root level
     local exportData = {
         name = playerName,
         realm = realmName,
         class = className,
         level = level,
-        gear = gearArray,
     }
 
-    return Utils.ToJSON(exportData), nil
+    -- Add gear slots directly to root
+    for slotName, itemID in pairs(gear) do
+        exportData[slotName] = itemID
+    end
+
+    return Utils.ToJSON(exportData), itemCount
 end
 
 -- Create the export dialog frame
@@ -186,7 +166,7 @@ function GearExport:CreateExportFrame()
     -- Instructions
     local instructions = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     instructions:SetPoint("BOTTOMLEFT", 15, 15)
-    instructions:SetText("Kopiera och klistra in pa voting-sidan (Ctrl+C)")
+    instructions:SetText("Press Ctrl+C to copy")
     instructions:SetTextColor(0.7, 0.7, 0.7)
 
     tinsert(UISpecialFrames, "HooligansLootGearExportFrame")
@@ -199,7 +179,7 @@ end
 function GearExport:RefreshExport()
     if not exportFrame or not exportFrame:IsShown() then return end
 
-    local exportString, err = self:ExportToWowSims()
+    local exportString, itemCount = self:ExportToJSON()
 
     if exportString then
         exportFrame.editBox:SetText(exportString)
@@ -207,10 +187,9 @@ function GearExport:RefreshExport()
 
         local playerName = UnitName("player")
         local _, className = UnitClass("player")
-        local gear = self:GetEquippedGear()
-        exportFrame.playerInfo:SetText(playerName .. " (" .. (className or "?") .. ") - " .. #gear .. " items")
+        exportFrame.playerInfo:SetText(playerName .. " (" .. (className or "?") .. ") - " .. itemCount .. " items")
     else
-        exportFrame.editBox:SetText("Error: " .. (err or "Unknown error"))
+        exportFrame.editBox:SetText("Error: Unknown error")
     end
 end
 
