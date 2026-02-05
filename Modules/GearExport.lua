@@ -47,10 +47,10 @@ local scanTooltip = CreateFrame("GameTooltip", "HooligansGearExportScanTooltip",
 scanTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
 
 -- Enchant ID to full name mapping
--- Each enchant effect ID is UNIQUE - no duplicates allowed
+-- Complete list for Classic Era / Anniversary + TBC
 local ENCHANT_NAMES = {
     -- =============================================
-    -- WEAPON ENCHANTS
+    -- WEAPON ENCHANTS (Classic)
     -- =============================================
     [241] = "Enchant Weapon - Minor Beastslayer",
     [249] = "Enchant Weapon - Minor Intellect",
@@ -65,6 +65,7 @@ local ENCHANT_NAMES = {
     [943] = "Enchant Weapon - Striking",
     [963] = "Enchant Weapon - Greater Striking",
     [1894] = "Enchant Weapon - Icy Chill",
+    [1895] = "Enchant Weapon - Lifestealing",
     [1896] = "Enchant Weapon - Lifestealing",
     [1897] = "Enchant Weapon - Unholy Weapon",
     [1898] = "Enchant Weapon - Spellpower",
@@ -75,11 +76,11 @@ local ENCHANT_NAMES = {
     [2443] = "Enchant Weapon - Strength",
     [2504] = "Enchant Weapon - Greater Striking",
     [2505] = "Enchant Weapon - Superior Striking",
+    -- TBC Weapon enchants
     [2563] = "Enchant Weapon - Mighty Intellect",
     [2564] = "Enchant Weapon - Mighty Spirit",
     [2567] = "Enchant Weapon - Mighty Spellpower",
     [2568] = "Enchant Weapon - Agility",
-    [2646] = "Enchant 2H Weapon - Major Agility",
     [2666] = "Enchant Weapon - Major Striking",
     [2667] = "Enchant Weapon - Savagery",
     [2668] = "Enchant Weapon - Potency",
@@ -90,26 +91,24 @@ local ENCHANT_NAMES = {
     [2673] = "Enchant Weapon - Mongoose",
     [2674] = "Enchant Weapon - Spellsurge",
     [2675] = "Enchant Weapon - Battlemaster",
-    [2676] = "Enchant 2H Weapon - Savagery",
-    [2723] = "Enchant Weapon - Executioner",
     [3222] = "Enchant Weapon - Greater Agility",
     [3225] = "Enchant Weapon - Executioner",
-    [3239] = "Enchant Weapon - Icebane",
-    [3241] = "Enchant Weapon - Lifeward",
-    [3243] = "Enchant Weapon - Giant Slayer",
-    [3247] = "Enchant Weapon - Berserking",
-    [3251] = "Enchant Weapon - Black Magic",
-    [3253] = "Enchant Weapon - Accuracy",
-    [3789] = "Enchant Weapon - Blade Ward",
-    [3790] = "Enchant Weapon - Blood Draining",
-    [3833] = "Enchant Weapon - Superior Potency",
-    [3834] = "Enchant Weapon - Titanguard",
-    [3844] = "Enchant Weapon - Mighty Spirit",
-    [3855] = "Enchant Weapon - Spellpower",
 
     -- =============================================
-    -- HEAD ENCHANTS (Arcanums / Glyphs)
+    -- 2H WEAPON ENCHANTS
     -- =============================================
+    [1901] = "Enchant 2H Weapon - Agility",
+    [1902] = "Enchant 2H Weapon - Superior Impact",
+    [1903] = "Enchant 2H Weapon - Major Spirit",
+    [1904] = "Enchant 2H Weapon - Major Intellect",
+    [2523] = "Enchant 2H Weapon - Greater Impact",
+    [2646] = "Enchant 2H Weapon - Major Agility",
+    [2676] = "Enchant 2H Weapon - Savagery",
+
+    -- =============================================
+    -- HEAD/LEG ENCHANTS (Classic - ZG/Librams)
+    -- =============================================
+    [1483] = "Arcanum of Focus",
     [1503] = "Lesser Arcanum of Constitution",
     [1504] = "Lesser Arcanum of Resilience",
     [1505] = "Lesser Arcanum of Rumination",
@@ -118,10 +117,11 @@ local ENCHANT_NAMES = {
     [1508] = "Arcanum of Focus",
     [1509] = "Arcanum of Protection",
     [1510] = "Arcanum of Voracity",
-    [2543] = "Arcanum of Voracity (Strength)",
-    [2544] = "Arcanum of Voracity (Agility)",
-    [2545] = "Arcanum of Voracity (Stamina)",
-    [2583] = "Arcanum of Voracity (Intellect)",
+    [2543] = "Arcanum of Voracity",
+    [2544] = "Arcanum of Voracity",
+    [2545] = "Arcanum of Voracity",
+    [2583] = "Arcanum of Voracity",
+    -- ZG Class Enchants
     [2584] = "Presence of Might",
     [2585] = "Syncretist's Sigil",
     [2586] = "Death's Embrace",
@@ -130,6 +130,7 @@ local ENCHANT_NAMES = {
     [2589] = "Presence of Sight",
     [2590] = "Hoodoo Hex",
     [2591] = "Animist's Caress",
+    -- TBC Head Glyphs
     [2999] = "Glyph of the Defender",
     [3001] = "Glyph of Renewal",
     [3002] = "Glyph of Power",
@@ -140,26 +141,20 @@ local ENCHANT_NAMES = {
     [3007] = "Glyph of Chromatic Warding",
     [3008] = "Glyph of Shadow Warding",
     [3009] = "Glyph of Nature Warding",
-    [3010] = "Cobrahide Leg Armor",
-    [3011] = "Nethercobra Leg Armor",
-    [3012] = "Clefthide Leg Armor",
-    [3013] = "Nethercleft Leg Armor",
-    [3096] = "Glyph of Arcane Warding",
-    [3097] = "Glyph of Fire Warding",
-    [3098] = "Glyph of Nature Warding",
-    [3099] = "Glyph of Frost Warding",
-    [3100] = "Glyph of Shadow Warding",
 
     -- =============================================
     -- SHOULDER ENCHANTS
     -- =============================================
+    -- ZG Signets
     [2604] = "Zandalar Signet of Mojo",
     [2605] = "Zandalar Signet of Might",
     [2606] = "Zandalar Signet of Serenity",
+    -- Naxx Enchants
     [2715] = "Fortitude of the Scourge",
     [2716] = "Power of the Scourge",
     [2717] = "Resilience of the Scourge",
     [2721] = "Might of the Scourge",
+    -- TBC Inscriptions
     [2977] = "Inscription of Warding",
     [2978] = "Greater Inscription of Faith",
     [2979] = "Greater Inscription of Vengeance",
@@ -176,22 +171,21 @@ local ENCHANT_NAMES = {
     [2998] = "Inscription of Faith",
 
     -- =============================================
-    -- BACK / CLOAK ENCHANTS
+    -- CLOAK ENCHANTS
     -- =============================================
     [247] = "Enchant Cloak - Lesser Agility",
     [249] = "Enchant Cloak - Lesser Protection",
     [256] = "Enchant Cloak - Minor Resistance",
     [368] = "Enchant Cloak - Minor Agility",
     [783] = "Enchant Cloak - Minor Agility",
+    [844] = "Enchant Cloak - Lesser Fire Resistance",
     [848] = "Enchant Cloak - Defense",
     [849] = "Enchant Cloak - Lesser Agility",
     [884] = "Enchant Cloak - Fire Resistance",
     [903] = "Enchant Cloak - Lesser Fire Resistance",
     [910] = "Enchant Cloak - Superior Defense",
     [1257] = "Enchant Cloak - Greater Defense",
-    [1354] = "Enchant Cloak - Stealth",
     [1441] = "Enchant Cloak - Greater Resistance",
-    [1889] = "Enchant Cloak - Stealth",
     [2463] = "Enchant Cloak - Fire Resistance",
     [2619] = "Enchant Cloak - Greater Fire Resistance",
     [2620] = "Enchant Cloak - Greater Nature Resistance",
@@ -200,6 +194,8 @@ local ENCHANT_NAMES = {
     [2662] = "Enchant Cloak - Major Armor",
     [2664] = "Enchant Cloak - Major Resistance",
     [2938] = "Enchant Cloak - Spell Penetration",
+    [1354] = "Enchant Cloak - Stealth",
+    [1889] = "Enchant Cloak - Dodge",
 
     -- =============================================
     -- CHEST ENCHANTS
@@ -216,6 +212,7 @@ local ENCHANT_NAMES = {
     [857] = "Enchant Chest - Superior Health",
     [866] = "Enchant Chest - Lesser Stats",
     [908] = "Enchant Chest - Stats",
+    [913] = "Enchant Chest - Greater Stats",
     [928] = "Enchant Chest - Stats",
     [1891] = "Enchant Chest - Greater Stats",
     [1892] = "Enchant Chest - Greater Stats",
@@ -226,14 +223,14 @@ local ENCHANT_NAMES = {
     [2661] = "Enchant Chest - Exceptional Stats",
     [2933] = "Enchant Chest - Major Resilience",
     [3150] = "Enchant Chest - Exceptional Stats",
-    [3233] = "Enchant Chest - Major Spirit",
-    [3245] = "Enchant Chest - Defense",
 
     -- =============================================
-    -- WRIST / BRACER ENCHANTS
+    -- BRACER ENCHANTS
     -- =============================================
+    [41] = "Enchant Bracer - Minor Health",
     [66] = "Enchant Bracer - Minor Stamina",
     [243] = "Enchant Bracer - Minor Strength",
+    [247] = "Enchant Bracer - Lesser Stamina",
     [248] = "Enchant Bracer - Minor Deflection",
     [255] = "Enchant Bracer - Lesser Strength",
     [369] = "Enchant Bracer - Assault",
@@ -244,16 +241,22 @@ local ENCHANT_NAMES = {
     [852] = "Enchant Bracer - Strength",
     [856] = "Enchant Bracer - Lesser Intellect",
     [905] = "Enchant Bracer - Greater Stamina",
+    [906] = "Enchant Bracer - Greater Strength",
     [907] = "Enchant Bracer - Greater Strength",
+    [908] = "Enchant Bracer - Greater Intellect",
     [923] = "Enchant Bracer - Deflection",
     [924] = "Enchant Bracer - Intellect",
+    [925] = "Enchant Bracer - Greater Spirit",
     [927] = "Enchant Bracer - Greater Intellect",
     [929] = "Enchant Bracer - Superior Stamina",
     [931] = "Enchant Bracer - Superior Strength",
     [1147] = "Enchant Bracer - Superior Stamina",
     [1593] = "Enchant Bracer - Mana Regeneration",
     [1600] = "Enchant Bracer - Healing Power",
-    [1886] = "Enchant Bracer - Superior Stamina",
+    [1883] = "Enchant Bracer - Superior Stamina",
+    [1884] = "Enchant Bracer - Superior Strength",
+    [1885] = "Enchant Bracer - Superior Spirit",
+    [1886] = "Enchant Bracer - Superior Intellect",
     [2565] = "Enchant Bracer - Brawn",
     [2617] = "Enchant Bracer - Superior Healing",
     [2647] = "Enchant Bracer - Brawn",
@@ -263,14 +266,17 @@ local ENCHANT_NAMES = {
     [2679] = "Enchant Bracer - Stats",
 
     -- =============================================
-    -- HANDS / GLOVES ENCHANTS
+    -- GLOVES ENCHANTS
     -- =============================================
     [684] = "Enchant Gloves - Superior Agility",
     [845] = "Enchant Gloves - Agility",
     [846] = "Enchant Gloves - Strength",
+    [865] = "Enchant Gloves - Skinning",
     [904] = "Enchant Gloves - Greater Strength",
     [909] = "Enchant Gloves - Greater Agility",
-    [927] = "Enchant Gloves - Riding Skill",
+    [856] = "Enchant Gloves - Mining",
+    [857] = "Enchant Gloves - Herbalism",
+    [863] = "Enchant Gloves - Advanced Mining",
     [930] = "Enchant Gloves - Mining",
     [931] = "Enchant Gloves - Herbalism",
     [1594] = "Enchant Gloves - Assault",
@@ -280,29 +286,40 @@ local ENCHANT_NAMES = {
     [2614] = "Enchant Gloves - Fire Power",
     [2615] = "Enchant Gloves - Shadow Power",
     [2616] = "Enchant Gloves - Healing Power",
+    [2617] = "Enchant Gloves - Healing Power",
     [2934] = "Enchant Gloves - Blasting",
     [2935] = "Enchant Gloves - Major Spellpower",
     [2936] = "Enchant Gloves - Spell Strike",
     [2937] = "Enchant Gloves - Major Healing",
 
     -- =============================================
-    -- LEGS ENCHANTS (Spellthreads / Armor Kits)
+    -- LEG ENCHANTS
     -- =============================================
+    -- TBC Leg Armor
+    [3010] = "Cobrahide Leg Armor",
+    [3011] = "Nethercobra Leg Armor",
+    [3012] = "Clefthide Leg Armor",
+    [3013] = "Nethercleft Leg Armor",
+    -- TBC Spellthreads
     [2746] = "Mystic Spellthread",
     [2747] = "Runic Spellthread",
     [2748] = "Silver Spellthread",
     [2749] = "Golden Spellthread",
 
     -- =============================================
-    -- FEET / BOOTS ENCHANTS
+    -- BOOTS ENCHANTS
     -- =============================================
+    [247] = "Enchant Boots - Minor Stamina",
     [250] = "Enchant Boots - Minor Speed",
+    [255] = "Enchant Boots - Lesser Stamina",
     [724] = "Enchant Boots - Lesser Agility",
+    [849] = "Enchant Boots - Lesser Agility",
     [851] = "Enchant Boots - Stamina",
     [852] = "Enchant Boots - Agility",
     [904] = "Enchant Boots - Greater Agility",
     [911] = "Enchant Boots - Minor Speed",
     [929] = "Enchant Boots - Spirit",
+    [1597] = "Enchant Boots - Greater Stamina",
     [1887] = "Enchant Boots - Run Speed",
     [2649] = "Enchant Boots - Dexterity",
     [2656] = "Enchant Boots - Vitality",
@@ -323,9 +340,7 @@ local ENCHANT_NAMES = {
     -- SHIELD ENCHANTS
     -- =============================================
     [848] = "Enchant Shield - Lesser Block",
-    [851] = "Enchant Shield - Stamina",
     [864] = "Enchant Shield - Lesser Stamina",
-    [904] = "Enchant Shield - Greater Stamina",
     [926] = "Enchant Shield - Frost Resistance",
     [929] = "Enchant Shield - Greater Spirit",
     [1071] = "Enchant Shield - Greater Stamina",
