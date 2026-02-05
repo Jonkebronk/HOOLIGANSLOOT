@@ -416,9 +416,11 @@ function GearExport:GetEnchantInfo(enchantID, itemLink)
     -- First try lookup table for full enchant name
     local enchantName = ENCHANT_NAMES[enchantID]
 
-    -- Fallback to tooltip scanning if not in lookup table
+    -- DEBUG: Print missing enchant IDs so we can add them to the table
     if not enchantName then
-        enchantName = self:GetEnchantFromTooltip(itemLink)
+        local tooltipName = self:GetEnchantFromTooltip(itemLink)
+        print("|cffff9900[HooligansLoot]|r Missing enchant ID: |cff00ff00" .. enchantID .. "|r = |cffffffff" .. (tooltipName or "unknown") .. "|r")
+        enchantName = tooltipName
     end
 
     if enchantName then
